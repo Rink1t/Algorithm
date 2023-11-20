@@ -2,9 +2,8 @@ import numpy as np
 
 class PSO(object):
 
-    def __init__(self, func, lb, ub, n_dim, w=0.8, c1=0.5, c2=0.5, pop=40, v_inital=0, tol=0.1,
+    def __init__(self, lb, ub, n_dim, w=0.8, c1=0.5, c2=0.5, pop=40, tol=0.1,
                  max_iter=100, vlimit=0.2, w_max=None, w_min=None, random_state=None):
-        self.__func = func  # 目标函数
         self.__lb = np.full(n_dim, lb)  # 求解空间下界
         self.__ub = np.full(n_dim, ub)  # 求解空间上界
         self.__n_dim = n_dim  # 求解空间维度
@@ -12,7 +11,6 @@ class PSO(object):
         self.__c1 = c1  # 个体学习因子
         self.__c2 = c2  # 群体学习因子
         self.__pop = pop  # 种群大小
-        self.__v_inital = v_inital  # 各粒子初始化速度
         self.__max_iter = max_iter  # 最大迭代次数
         self.__tol = tol  # 容忍度
         self.__vlimit = vlimit  # 速度限制
@@ -28,7 +26,10 @@ class PSO(object):
             self.__w_mode = 'constant'
 
     # 初始化信息
-    def __inital_info(self):
+    def __inital_info(self, func):
+        # 目标函数
+        self.__func = func  # 目标函数
+        
         # 初始化粒子位置
         self.__pop_pos = np.random.RandomState(self.__random_state) \
             .uniform(low=self.__lb, high=self.__ub, size=(self.__pop, self.__n_dim))
@@ -38,7 +39,7 @@ class PSO(object):
         self.__gbest_pos = np.zeros(self.__n_dim)  # 全局最优位置
         self.__pbest_fitness = np.full(self.__pop, np.inf)  # 个体最优适应值
         self.__gbest_fitness = np.inf  # 全局最优适应值
-        self.__v = np.full((self.__pop, self.__n_dim), self.__v_inital)  # 各粒子初始化速度
+        self.__v = np.full((self.__pop, self.__n_dim), 0)  # 各粒子初始化速度
         self.__pop_fitness = None  # 各粒子对应适应值
 
         # 模型相关属性
@@ -153,8 +154,8 @@ class PSO(object):
         return flag
 
     # 训练模型
-    def fit(self):
-        self.__inital_info()  # 初始化相关信息
+    def fit(self, func):
+        self.__inital_info(func)  # 初始化相关信息
 
         for epoch in range(self.__max_iter):
             # 停止准则
