@@ -13,9 +13,13 @@
 - `tol`: constant; 默认为0.1; 容忍度, 若最近3次epoch中全局最优位置对应适应值变化量的均值小于tol, 则认为模型已收敛, 停止训练
 - `max_iter`: integer; 默认为100; 最大迭代次数
 - `vlimit`: float in [0, 1]; 默认为0.2; 限制速度变化的大小, 即:
-  $$
-  pre_v(1-vlimit)\le cur_v \le pre_v(1+vlimit)
-  $$
+
+$$
+\begin{align}
+pre_v(1-vlimit)\le cur_v \le pre_v(1+vlimit)
+\end{align}
+$$
+
 - `w_max`: constant; 默认为None; 当参数w设置为"line_decay"时需要设置该参数, 表示惯性权重的最大值
 - `w_min`: constant; 默认为None; 当参数w设置为"line_decay"时需要设置该参数, 表示惯性权重的最小值
 - `random_state`: integer; 默认为None; 随机数种子, 控制随机数生成
