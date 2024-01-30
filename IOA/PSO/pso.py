@@ -2,7 +2,7 @@ import numpy as np
 
 class PSO(object):
 
-    def __init__(self, lb, ub, n_dim, w=0.8, c1=0.5, c2=0.5, pop_size=40, tol=0.1,
+    def __init__(self, lb, ub, n_dim, w=0.8, c1=0.5, c2=0.5, pop_size=40, is_tol=False, tol=0.01,
                  max_iter=100, vlimit=0.2, w_max=None, w_min=None, random_state=None):
         self.__lb = np.full(n_dim, lb)  # 求解空间下界
         self.__ub = np.full(n_dim, ub)  # 求解空间上界
@@ -12,6 +12,7 @@ class PSO(object):
         self.__c2 = c2  # 群体学习因子
         self.__pop_size = pop_size  # 种群大小
         self.__max_iter = max_iter  # 最大迭代次数
+        self.__is_tol = is_tol  # 是否启用容忍度
         self.__tol = tol  # 容忍度
         self.__vlimit = vlimit  # 速度限制
         self.__random_state = random_state  # 随机种子
@@ -142,21 +143,22 @@ class PSO(object):
         self.__v[up_exp] = up_v[up_exp]
         self.__v[low_exp] = low_v[low_exp]
 
-    # 停止准则: 若过去8次全局最优位置对应适应值的变化量的均值小于容忍度tol, 则判断模型已拟合
+    # 停止准则: 若过去8次全局最优位置对应适应值的变化量的均值小于容忍度tol, 则认为已收敛
     def __is_stop(self):
         flag = False
-
-        if len(self.gbest_fitness_history_) >= 8:
-
-            if np.abs(np.mean(np.diff(self.gbest_fitness_history_[-9:]))) < self.__tol:
-                flag = True
+        
+        if self.__is_tol == True:
+            if len(self.gbest_fitness_history_) >= 8:
+                if np.abs(np.mean(np.diff(self.gbest_fitness_history_[-9:]))) < self.__tol:
+                    flag = True
 
         return flag
 
     # 训练模型
     def fit(self, func):
         self.__inital_info(func)  # 初始化相关信息
-
+        
+        self.n_iter_ = None
         for epoch in range(self.__max_iter):
             # 停止准则
             if self.__is_stop():
@@ -186,13 +188,13 @@ class PSO(object):
     def plot_info(self):
         fig, axes = plt.subplots(1, 2, figsize=(15, 5))
         axes[0].scatter(range(self.__pop_size), self.__pbest_fitness, color='green', alpha=0.6, s=30, edgecolor='white', linewidth=1)
-        axes[0].scatter(np.where(self.__pbest_fitness == self.gbest_fitness_)[0][0], self.gbest_fitness_, s=30, color='red', alpha=1, edgecolor='white', linewidth=1)
+        axes[0].scatter(np.where(self.__pbest_fitness == self.gbest_fitness_)[0][0], self.gbest_fitness_, s=30, color='red', alpha=1, edgecolor='white', linewidth=1, zorder=10)
         axes[0].set_xlabel('pop id')
         axes[0].set_ylabel('fitness')
         axes[0].grid(color='black', linestyle='--', alpha=0.2)
         
-        axes[1].scatter(range(1, len(self.gbest_fitness_history_)+1), self.gbest_fitness_history_, color='blue', alpha=0.6, s=30, edgecolor='white', linewidth=1)
         axes[1].plot(range(1, len(self.gbest_fitness_history_)+1), self.gbest_fitness_history_, color='blue', alpha=0.6)
+        axes[1].scatter(self.n_iter_, self.gbest_fitness_, s=30, color='red', alpha=1, edgecolor='white', linewidth=1, zorder=10)
         axes[1].grid(color='black', linestyle='--', alpha=0.2)
         axes[1].set_xlabel('n_iter')
         axes[1].set_ylabel('best fitness')
