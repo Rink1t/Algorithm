@@ -14,11 +14,11 @@
 - `mut_rate`: float; 默认为0.01; 变异率
 - `precision`: integer; 默认为4; 精度, 即保留小数个数
 - `code_mode`: string; 默认为"binary"; 编码方式
-  - `binary`: 二进制编码
+  - "binary": 二进制编码
 - `cross_strategy`: string; 默认为 "single"; 交叉策略
-  - `single`: 单点交叉
+  - "single": 单点交叉
 - `mut_strategy`: string; 默认为 "simple"; 变异策略
-  - `simple`: 基本位变异
+  - "simple": 基本位变异
 - `is_tol`: boolearn; 默认为False; 是否使用容忍度, 若该值为True, 则参数`tol`有效
 - `tol`: float; 默认为0.01; 容忍度, 若最近8次迭代中的最优适应度变化量的均值小于tol, 则认为模型已收敛, 停止训练
 - `random_state`: integer; 默认为None; 随机数种子, 控制初始化时的随机数生成
