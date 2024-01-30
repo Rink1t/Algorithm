@@ -1,4 +1,5 @@
 # PSO: Particle Swarm Optimization
+支持一般函数的最优值求解问题
 
 ## Parameters
 - `lb`: tuple; 无默认值; 限定求解空间各维度的下界
