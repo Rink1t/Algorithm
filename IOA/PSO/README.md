@@ -47,7 +47,7 @@ pso = PSO(
 
 pso.fit_info()
 ```
-**Output**: 
+**Outputs**: 
 ```
 n_iter:  12
 gbest X:  [40.]
