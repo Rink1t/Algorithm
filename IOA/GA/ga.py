@@ -1,7 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-
 class GA(object):
     # 初始化相关参数
     def __init__(self, lb, ub, n_dim, pop_size=40, max_iter=100, cross_rate=0.4, mut_rate=0.01, cross_strategy='single',
