@@ -1,8 +1,8 @@
 # GA: Genetic Algorithm
 
 ## Description
-支持一般函数的最优值求解问题
-适应度函数(目标函数)值越大越好
+- 支持一般函数的最优值求解问题
+- 适应度函数(目标函数)值越大越好
 
 ## Parameters
 - `lb`: tuple; 无默认值; 限定求解空间各维度的下界
