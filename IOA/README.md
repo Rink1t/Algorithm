@@ -1,1 +1,2 @@
 - PSO: Particle Swarm Optimization(粒子群优化算法)
+- GA: Genetic Algorithm(遗传算法)
