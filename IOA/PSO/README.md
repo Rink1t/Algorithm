@@ -10,7 +10,7 @@
 - `n_dim`: integer; 无默认值; 求解空间维度
 - `pop_size`: integer; 默认为40; 种群大小(粒子个数)
 - `w`: constant/str; 默认为0.8; 惯性权重,
-  - constant: 惯性权重为定值, 不发生改变
+  - "constant": 惯性权重为定值, 不发生改变
   - "line_decay": 惯性权重随着迭代次数的增加线性衰减, 若为"line_decay", 则需指定w_max, w_min
 - `c1`: constant; 默认为0.5; 个体最优位置学习因子
 - `c2`: constant; 默认为0.5; 全局最优位置学习因子
