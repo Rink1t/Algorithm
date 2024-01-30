@@ -9,8 +9,9 @@
   - constant: 惯性权重为定值, 不发生改变
   - "line_decay": 惯性权重随着迭代次数的增加线性衰减, 若为"line_decay", 则需指定w_max, w_min
 - `c1`: constant; 默认为0.5; 个体最优位置学习因子
-- `c2`: constant, 默认为0.5; 全局最优位置学习因子
+- `c2`: constant; 默认为0.5; 全局最优位置学习因子
 - `pop`: integer; 默认为40; 种群大小(粒子个数)
+- `is_tol`: boolean, 默认为False; 是否使用容忍度
 - `tol`: constant; 默认为0.1; 容忍度, 若最近3次epoch中全局最优位置对应适应值变化量的均值小于tol, 则认为模型已收敛, 停止训练
 - `max_iter`: integer; 默认为100; 最大迭代次数
 - `vlimit`: float in [0, 1]; 默认为0.2; 限制速度变化的大小, 即 $V_{pre}(1-vlimit)\le V_{cur} \le V_{pre}(1+vlimit)$
