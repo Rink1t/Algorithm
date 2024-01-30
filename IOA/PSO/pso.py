@@ -2,7 +2,7 @@ import numpy as np
 
 class PSO(object):
 
-    def __init__(self, lb, ub, n_dim, w=0.8, c1=0.5, c2=0.5, pop=40, tol=0.1,
+    def __init__(self, lb, ub, n_dim, w=0.8, c1=0.5, c2=0.5, pop_size=40, tol=0.1,
                  max_iter=100, vlimit=0.2, w_max=None, w_min=None, random_state=None):
         self.__lb = np.full(n_dim, lb)  # 求解空间下界
         self.__ub = np.full(n_dim, ub)  # 求解空间上界
@@ -10,7 +10,7 @@ class PSO(object):
         self.__w = w  # 惯性权重
         self.__c1 = c1  # 个体学习因子
         self.__c2 = c2  # 群体学习因子
-        self.__pop = pop  # 种群大小
+        self.__pop_size = pop_size  # 种群大小
         self.__max_iter = max_iter  # 最大迭代次数
         self.__tol = tol  # 容忍度
         self.__vlimit = vlimit  # 速度限制
@@ -32,21 +32,21 @@ class PSO(object):
         
         # 初始化粒子位置
         self.__pop_pos = np.random.RandomState(self.__random_state) \
-            .uniform(low=self.__lb, high=self.__ub, size=(self.__pop, self.__n_dim))
+            .uniform(low=self.__lb, high=self.__ub, size=(self.__pop_size, self.__n_dim))
 
         # 初始化其它相关信息
-        self.__pbest_pos = np.zeros((self.__pop, self.__n_dim))  # 个体最优位置
+        self.__pbest_pos = np.zeros((self.__pop_size, self.__n_dim))  # 个体最优位置
         self.__gbest_pos = np.zeros(self.__n_dim)  # 全局最优位置
-        self.__pbest_fitness = np.full(self.__pop, np.inf)  # 个体最优适应值
+        self.__pbest_fitness = np.full(self.__pop_size, np.inf)  # 个体最优适应值
         self.__gbest_fitness = np.inf  # 全局最优适应值
-        self.__v = np.full((self.__pop, self.__n_dim), 0)  # 各粒子初始化速度
+        self.__v = np.full((self.__pop_size, self.__n_dim), 0)  # 各粒子初始化速度
         self.__pop_fitness = None  # 各粒子对应适应值
 
         # 模型相关属性
         self.n_iter_ = None  # 模型真实迭代次数
         self.gbest_fitn_ = None  # 得到的解对应的目标函数值(适应值)
         self.gbest_pos_ = None  # 得到的解
-        self.gbest_fitn_his_ = []  # 模型gbest替换历史
+        self.gbest_fitness_history_ = []  # 模型gbest替换历史
 
         # 初始化pbest, gbest相关信息
         self.__update_best()
@@ -83,8 +83,8 @@ class PSO(object):
             self.__gbest_fitness = self.__pbest_fitness[index]
             self.__gbest_pos = self.__pbest_pos[index]
 
-            # 记录gbest的适应值信息
-            self.gbest_fitn_his_.append(self.__gbest_fitness)
+        # 记录gbest的适应值信息
+        self.gbest_fitness_history_.append(self.__gbest_fitness)
 
     # 自适应权重更新函数
     def __update_w(self, epoch):
@@ -98,8 +98,8 @@ class PSO(object):
         pre_v = self.__v
 
         # 增加随机性
-        r1 = np.random.RandomState(self.__random_state).rand(self.__pop, self.__n_dim)
-        r2 = np.random.RandomState(self.__random_state).rand(self.__pop, self.__n_dim)
+        r1 = np.random.RandomState(self.__random_state).rand(self.__pop_size, self.__n_dim)
+        r2 = np.random.RandomState(self.__random_state).rand(self.__pop_size, self.__n_dim)
 
         # 更新各粒子速度
         self.__v = (self.__w * self.__v) + \
@@ -142,13 +142,13 @@ class PSO(object):
         self.__v[up_exp] = up_v[up_exp]
         self.__v[low_exp] = low_v[low_exp]
 
-    # 停止准则: 若过去3次全局最优位置对应适应值的变化量的均值小于容忍度tol, 则判断模型已拟合
+    # 停止准则: 若过去8次全局最优位置对应适应值的变化量的均值小于容忍度tol, 则判断模型已拟合
     def __is_stop(self):
         flag = False
 
-        if len(self.gbest_fitn_his_) >= 4:
+        if len(self.gbest_fitness_history_) >= 8:
 
-            if np.abs(np.mean(np.diff(self.gbest_fitn_his_[-4:]))) < self.__tol:
+            if np.abs(np.mean(np.diff(self.gbest_fitness_history_[-9:]))) < self.__tol:
                 flag = True
 
         return flag
@@ -169,8 +169,9 @@ class PSO(object):
         if self.n_iter_ == None:
             self.n_iter_ = self.__max_iter
 
-        self.gbest_fitn_ = self.__gbest_fitness
+        self.gbest_fitness_ = self.__gbest_fitness
         self.gbest_pos_ = self.__gbest_pos
+        self.gbest_fitness_history_ = self.gbest_fitness_history_[1:]
 
         return self
 
@@ -178,5 +179,21 @@ class PSO(object):
     def fit_info(self):
         print('n_iter: ', self.n_iter_)
         print('gbest X: ', self.gbest_pos_)
-        print('gbest Y: ', self.gbest_fitn_)
-        print('gbest Y history: ', self.gbest_fitn_his_)
+        print('gbest Y: ', self.gbest_fitness_)
+        print('gbest Y history: ', self.gbest_fitness_history_)
+
+    # 可视化模型拟合结果
+    def plot_info(self):
+        fig, axes = plt.subplots(1, 2, figsize=(15, 5))
+        axes[0].scatter(range(self.__pop_size), self.__pbest_fitness, color='green', alpha=0.6, s=30, edgecolor='white', linewidth=1)
+        axes[0].scatter(np.where(self.__pbest_fitness == self.gbest_fitness_)[0][0], self.gbest_fitness_, s=30, color='red', alpha=1, edgecolor='white', linewidth=1)
+        axes[0].set_xlabel('pop id')
+        axes[0].set_ylabel('fitness')
+        axes[0].grid(color='black', linestyle='--', alpha=0.2)
+        
+        axes[1].scatter(range(1, len(self.gbest_fitness_history_)+1), self.gbest_fitness_history_, color='blue', alpha=0.6, s=30, edgecolor='white', linewidth=1)
+        axes[1].plot(range(1, len(self.gbest_fitness_history_)+1), self.gbest_fitness_history_, color='blue', alpha=0.6)
+        axes[1].grid(color='black', linestyle='--', alpha=0.2)
+        axes[1].set_xlabel('n_iter')
+        axes[1].set_ylabel('best fitness')
+        plt.show()
